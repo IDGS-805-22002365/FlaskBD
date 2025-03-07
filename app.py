@@ -49,7 +49,50 @@ def Alumnos1():
         db.session.commit()
         return redirect(url_for('index'))
     return render_template("Alumnos1.html",form=create_form)
-    
+
+@app.route('/editar',methods=["GET","POST"])
+def modificar():
+    create_form=forms.UserForm2(request.form)
+    if request.method == "GET":
+        id = request.args.get('id')
+        alum1 = db.session.query(Alumnos).filter(Alumnos.id == id).first()
+        create_form.nombre.data=alum1.nombre
+        create_form.apaterno.data=alum1.apaterno
+        create_form.email.data=alum1.email
+    if request.method == "POST":
+        id = create_form.id.data
+        id = request.args.get('id')
+        alum1 = db.session.query(Alumnos).filter(Alumnos.id == id).first()
+        alum1.nombre = create_form.nombre.data
+        alum1.apaterno = create_form.apaterno.data
+        alum1.email = create_form.email.data
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template("editar.html", form=create_form)
+        
+@app.route('/eliminar', methods=["GET", "POST"])
+def eliminar():
+    create_form = forms.UserForm2(request.form)
+    if request.method == "GET":
+        id = request.args.get('id')
+        # select * from alumnos where id=id
+        alum1 = db.session.query(Alumnos).filter(Alumnos.id == id).first()
+        if alum1 is None:
+            flash('Registro no encontrado', 'error')
+            return redirect(url_for('index'))
+        create_form.id.data = alum1.id
+        create_form.nombre.data = alum1.nombre
+        create_form.apaterno.data = alum1.apaterno
+        create_form.email.data = alum1.email
+    if request.method == "POST":
+        id = create_form.id.data
+        alum = Alumnos.query.get(id)
+        # delete from alumnos where id=id
+        db.session.delete(alum)
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template("eliminar.html", form=create_form)
+
 
 
 if __name__ == '__main__':
